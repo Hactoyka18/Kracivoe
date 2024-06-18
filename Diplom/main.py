@@ -1,146 +1,98 @@
 import pygame
-from pygame.locals import *
 import sys
-import random
 import time
+from math import fabs
+from settings import HEIGHT, WIDTH, FPS
+from player import Player
+from platform import Platform
+from pygame.locals import *
+from platformer.game import Game
+from platformer.player import Player
+from platformer.object import Object
+import random
+import settings
 
-pygame.init()
+class Platform(Object):
+    def __init__(self, x, y, sprite_file, vx=0, vy=0, width=None, height=None):
+        super().__init__(x, y, sprite_file, vx, vy, width, height)
+
+class JumpGame(Game):
+    def __init__(self):
+        super().__init__(WIDTH, HEIGHT, "Jump game", FPS)
+        self.new_state("Intro", self.init_intro, self.intro)
+        self.set_state("Intro")
+        self.new_state("Game", self.init_game, self.game_script)
+
+    def init_intro(self):
+        self.knight = Object(200, 200, "knight.png")
+        self.add_object(self.knight)
+
+    def intro(self):
+        if self.key_pressed(pygame.K_SPACE):
+            self.set_state("Game")
+        self.knight.vel = (random.randrange(-1, 1), random.randrange(-1, 1))
+        time.sleep(1)
+
+    def init_game(self):
+        self.clear()
+        self.add_object(Object(0, 0, "pop.png"))
+        self.add_object(Platform(0, 410, "bip.png", width=WIDTH))
+        self.player = Object(200, 40, "knight.png ")
+        self.player.on_ground = False
+        self.add_object(self.player)
+
+    def game_script(self):
+        if self.key_pressed(pygame.K_LEFT):
+            self.player.vel[0] = -settings.SPEED
+        elif self.key_pressed(pygame.K_RIGHT):
+            self.player.vel[0] = settings.SPEED
+        elif self.key_pressed(pygame.K_SPACE) and self.player.on_ground:
+            self.player.vel[1] = -settings.JUMP
+            self.player.on_ground = False
+        for o in self.get_collision(self.player):
+            if type(o) == Platform:
+                self.player.pos[1] = o.rect[1] - self.player.height
+                self.player.on_ground = True
+                self.player.vel[1] = 0
+        self.player_move()
+
+    def player_move(self):
+        if not self.player.on_ground:
+            self.player.vel[1] += settings.G
+        if self.player.vel[0] < 0:
+            self.player.vel[0] *= settings.FRIC
+        elif self.player.vel[0] > 0:
+            self.player.vel[0] *= settings.FRIC
+        if fabs(self.player.vel[0]) < 0.6:
+            self.player.vel[0] = 0
+        if self.player.pos[0] > WIDTH:
+            self.player.pos[0] = 0
+        if self.player.pos[0] < 0:
+            self.player.pos[0] = WIDTH
+
+j = JumpGame()
+j.run()
+
+"""
 vec = pygame.math.Vector2  # 2 for two dimensional
-
-HEIGHT = 450
-WIDTH = 400
-ACC = 0.5
-FRIC = -0.12
-FPS = 60
-
-FramePerSec = pygame.time.Clock()
-
-displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Game")
 
 background = pygame.image.load("pop.png")
 
-
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.surf = pygame.image.load("knight.png")
-        self.rect = self.surf.get_rect()
-
-        self.pos = vec((10, 360))
-        self.vel = vec(0, 0)
-        self.acc = vec(0, 0)
-        self.jumping = False
-        self.score = 0
-
-    def move(self):
-        self.acc = vec(0, 0.5)
-
-        pressed_keys = pygame.key.get_pressed()
-
-        if pressed_keys[K_LEFT]:
-            self.acc.x = -ACC
-        if pressed_keys[K_RIGHT]:
-            self.acc.x = ACC
-
-        self.acc.x += self.vel.x * FRIC
-        self.vel += self.acc
-        self.pos += self.vel + 0.5 * self.acc
-
-        if self.pos.x > WIDTH:
-            self.pos.x = 0
-        if self.pos.x < 0:
-            self.pos.x = WIDTH
-
-        self.rect.midbottom = self.pos
-
-    def jump(self):
-        hits = pygame.sprite.spritecollide(self, platforms, False)
-        if hits and not self.jumping:
-            self.jumping = True
-            self.vel.y = -15
-
-    def cancel_jump(self):
-        if self.jumping:
-            if self.vel.y < -3:
-                self.vel.y = -3
-
-    def update(self):
-        hits = pygame.sprite.spritecollide(self, platforms, False)
-        if self.vel.y > 0:
-            if hits:
-                if self.pos.y < hits[0].rect.bottom:
-                    if hits[0].point == True:
-                        hits[0].point = False
-                        self.score += 1
-                    self.pos.y = hits[0].rect.top + 1
-                    self.vel.y = 0
-                    self.jumping = False
-
-
-class Coin(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        super().__init__()
-
-        self.image = pygame.image.load("Coin.png")
-        self.rect = self.image.get_rect()
-
-        self.rect.topleft = pos
-
-    def update(self):
-        if self.rect.colliderect(P1.rect):
-            P1.score += 5
-            self.kill()
-
-
-class platform(pygame.sprite.Sprite):
-    def __init__(self, width=0, height=18):
-        super().__init__()
-
-        if width == 0:
-            width = random.randint(50, 120)
-
-        self.image = pygame.image.load("bip.png")
-        self.surf = pygame.transform.scale(self.image, (width, height))
-        self.rect = self.surf.get_rect(center=(random.randint(0, WIDTH - 10),
-                                               random.randint(0, HEIGHT - 30)))
-
-        self.point = True
-        self.moving = True
-        self.speed = random.randint(-1, 1)
-
-        if (self.speed == 0):
-            self.moving == False
-
-    def move(self):
-        hits = self.rect.colliderect(P1.rect)
-        if self.moving == True:
-            self.rect.move_ip(self.speed, 0)
-            if hits:
-                P1.pos += (self.speed, 0)
-            if self.speed > 0 and self.rect.left > WIDTH:
-                self.rect.right = 0
-            if self.speed < 0 and self.rect.right < 0:
-                self.rect.left = WIDTH
-
-    def generateCoin(self):
-        if (self.speed == 0):
-            coins.add(Coin((self.rect.centerx, self.rect.centery - 50)))
-
+all_sprites = pygame.sprite.Group()
+platforms = pygame.sprite.Group()
+coins = pygame.sprite.Group()
 
 def check(platform, groupies):
-    if pygame.sprite.spritecollideany(platform, groupies):
-        return True
-    else:
+    #if pygame.sprite.spritecollideany(platform, groupies):
+    #    return True
+    #else:
         for entity in groupies:
             if entity == platform:
                 continue
             if (abs(platform.rect.top - entity.rect.bottom) < 40) and (
                     abs(platform.rect.bottom - entity.rect.top) < 40):
                 return True
-        C = False
-
-
+        return False
 def plat_gen():
     while len(platforms) < 6:
         width = random.randrange(50, 100)
@@ -148,9 +100,12 @@ def plat_gen():
         C = True
 
         while C:
-            p = platform()
+            p = Platform()
             p.rect.center = (random.randrange(0, WIDTH - width),
                              random.randrange(-50, 0))
+           # print('pl', p.rect.top, p.rect.bottom)
+            #for pl in platforms:
+             #   print('platforms', pl.rect.top, pl.rect.bottom)
             C = check(p, platforms)
 
         p.generateCoin()
@@ -158,32 +113,27 @@ def plat_gen():
         all_sprites.add(p)
 
 
-all_sprites = pygame.sprite.Group()
-platforms = pygame.sprite.Group()
-coins = pygame.sprite.Group()
-
-PT1 = platform(450, 80)
-# PT1.surf = pygame.Surface((WIDTH, 20))
-# PT1.surf.fill((255,0,0))
+PT1 = Platform(450, 80)
 PT1.rect = PT1.surf.get_rect(center=(WIDTH / 2, HEIGHT - 10))
 PT1.moving = False
 PT1.point = False
 
-P1 = Player()
+P1 = Player(platforms, coins)
 
 all_sprites.add(PT1)
 all_sprites.add(P1)
 platforms.add(PT1)
 
-for x in range(random.randint(4, 5)):
+for x in range(random.randint(4,5)):
     C = True
-    pl = platform()
+    pl = Platform()
     while C:
-        pl = platform()
+        pl = Platform()
         C = check(pl, platforms)
     pl.generateCoin()
     platforms.add(pl)
     all_sprites.add(pl)
+
 
 while True:
     P1.update()
@@ -202,7 +152,7 @@ while True:
         for entity in all_sprites:
             entity.kill()
             time.sleep(1)
-            displaysurface.fill((255, 0, 0))
+            display_surface.fill((255, 0, 0))
             pygame.display.update()
             time.sleep(1)
             pygame.quit()
@@ -236,3 +186,4 @@ while True:
 
     pygame.display.update()
     FramePerSec.tick(FPS)
+"""
