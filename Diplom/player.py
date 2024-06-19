@@ -1,3 +1,19 @@
+from platformer.object import Object
+
+class Player(Object):
+    '''
+    Класс игрока
+    '''
+    def __init__(self, x, y, sprite_file, vx=0, vy=0, width=None, height=None):
+        super().__init__(x, y, sprite_file, vx, vy, width, height)
+
+    def update(self):
+        '''
+        Метод обновления состояния игрока
+        '''
+        super().update()
+        self.acc[0] = 0 # сброс горизонтального ускорения для остановки
+'''
 import pygame
 from settings import WIDTH, ACC, FRIC
 
@@ -59,4 +75,4 @@ class Player(pygame.sprite.Sprite):
                         self.score += 1
                     self.pos.y = hits[0].rect.top + 1
                     self.vel.y = 0
-                    self.jumping = False
+                    self.jumping = False'''

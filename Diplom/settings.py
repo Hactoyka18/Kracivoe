@@ -1,8 +1,8 @@
 HEIGHT = 450
 WIDTH = 400
 FPS = 60
-ACC = 0.85
+ACC = 0.5
 G = 0.6
 SPEED = 5
 JUMP = 15
-FRIC = 0.96
+FRIC = -0.12
