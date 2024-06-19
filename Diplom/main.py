@@ -115,10 +115,12 @@ class JumpGame(Game):
         if len(plat_col) == 0:
             self.player.on_ground = False # падение
         else:
-            if self.player.vel[1] > 0:
+            if self.player.vel[1] > 0 and \
+               self.player.pos[1] + self.player.height < plat_col[0].pos[1] + plat_col[0].height:
                 self.player.pos[1] = plat_col[0].rect[1] - self.player.height + 1
                 self.player.on_ground = True
                 self.player.vel[1] = 0
+                self.score += 1
             self.player.pos[0] += plat_col[0].vel[0]
         coins_col = self.get_collision(self.player, Coin)
         if len(coins_col) > 0:
