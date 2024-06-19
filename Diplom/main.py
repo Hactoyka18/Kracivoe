@@ -77,8 +77,12 @@ class JumpGame(Game):
                 width = random.randint(50, 120)
                 speed = random.randint(-1, 1)
                 p = Platform(x, y, self.PLATFORM, vx=speed, width=width)
+                p.pos[1] -= 40
+                p.height += 40
                 col = self.get_collision(p, Platform)
                 if len(col) == 0:
+                    p.pos[1] += 40
+                    p.height -= 40
                     self.add_object(p)
                     if speed == 0:
                         self.add_object(Coin(x + width / 2, y - 50, self.COIN))
