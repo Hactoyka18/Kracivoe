@@ -25,7 +25,7 @@ class JumpGame(Game):
     COIN = "Coin.png"
 
     START_X = 200 # начальная позиция игрока
-    START_Y = 300
+    START_Y = 400
     COIN_SCORE = 5 # очков за монету
 
     def __init__(self):
@@ -69,13 +69,14 @@ class JumpGame(Game):
         self.add_object(t)
 
     def make_platforms(self):
-        self.add_object(Platform(WIDTH / 2 - 225, HEIGHT - 20, self.PLATFORM, width=450, height=80))
+        self.add_object(Platform(0, HEIGHT - 20, self.PLATFORM, width=450, height=80))
         for i in range(random.randint(4,5)):
             while True:
                 x = random.randint(0, WIDTH - 10)
                 y = random.randint(0, HEIGHT - 30)
+                width = random.randint(50, 120)
                 speed = random.randint(-1, 1)
-                p = Platform(x, y, self.PLATFORM, vx=speed)
+                p = Platform(x, y, self.PLATFORM, vx=speed, width=width)
                 col = self.get_collision(p, Platform)
                 if len(col) == 0:
                     self.add_object(p)
