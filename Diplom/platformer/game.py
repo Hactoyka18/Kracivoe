@@ -111,14 +111,18 @@ class Game():
                 list.append(o)
         return list
 
-    def get_objects(self, obj_type):
+    def get_objects(self, obj_types):
         '''
-        Получить список объектов типа obj_type
+        Получить список объектов заданного типа
+
+        :param obj_types: список требуемых типов
+        :return: список объектов
         '''
         list = []
         for o in self.objects:
-            if type(o) == obj_type:
-                list.append(o)
+            for obj_type in obj_types:
+                if type(o) == obj_type:
+                    list.append(o)
         return list
 
     def start_script(self, script_function, script_name, *args):
