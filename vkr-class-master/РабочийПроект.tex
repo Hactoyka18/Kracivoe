@@ -1,6 +1,49 @@
 \section{Рабочий проект}
 \subsection{Классы, используемые при разработке сайта}
 
+\subsubsection{Класс Game}
+
+Класс Game относится к platformer и используется для управления программной системы.
+
+Описание методов класса Game представлено в таблице \ref{table:game_methods}.
+\renewcommand{\arraystretch}{0.8} % уменьшение расстояний до сетки таблицы
+\begin{xltabular}{\textwidth}{|X|X|}
+	\caption{Методы класса Game}\label{table:game_methods} \\
+	\hline \centrow
+	Название метода & \centrow  Описание метода \\
+	\hline \centrow 1 & \centrow 2 \\ \hline
+	\endfirsthead
+	\continuecaption{Продолжение таблицы \ref{table:game_methods}}\\
+	\hline \centrow 1 & \centrow 2 \\ \hline
+	\finishhead
+	add\_object(self, obj) & Добавляет объект obj в игру,параметр obj: добавляемый объект. \\
+	\hline
+	remove\_object(self, obj) & Удаляет объект obj из игры, параметр obj: удаляемый объект. \\
+	\hline
+	clear(self) & Удаляет все игровые объекты. \\
+	\hline
+	key\_pressed(self, key) & Возвращает True если была нажата клавиша key, иначе False, параметр key: нажимаемая кнопка. \\
+	\hline
+	new\_state(self, name, first\_func, func) & Создание нового игрового состояния, параметр name: имя состояния, параметр first\_func:функция, которая запускается при переключении в это игровое состояние, параметр func: функция, которая работает каждый кадр в этом игровом состянии. \\
+	\hline
+	set\_state(self, name) & Переключиться в игровое состояние, параметр name: имя состояния. \\
+	\hline
+	run(self) & Главный цикл игры. \\
+	\hline
+	render\_text(self, text) & Отрисовка текстового объекта, параметр text: текстовый объект. \\
+	\hline
+	get\_collision(self, obj, obj\_type) & Получение списка объектов столкновения, параметр obj: объект, с которым проверяется столкновение, параметр obj\_type:тип объектов, которые будут проверяться. \\
+	\hline
+	get\_objects(self, obj\_types) & Получение списка объектов заданного типа, параметр obj\_types: список требуемых типов. \\
+	\hline
+	start\_script(self, script\_function, script\_name, *args) & Запускает сценарий в отдельном потоке с возможностью остановки и передачи аргументов, параметр script\_function: функция, содержащая код сценария, параметр script\_name: имя сценария, параметр args: дополнительные аргументы, которые передаются в сценарий. \\
+	\hline
+	stop\_script(self, script\_name) & Останавливает сценарий по имени, параметр script\_name: имя сценария, который нужно остановить. \\
+	\hline
+\end{xltabular}
+
+
+
 Можно выделить следующий список классов и их методов, использованных при разработке web-приложения (таблица \ref{class:table}). Пример таблицы с уменьшенным межстрочным интервалом.
 
 \renewcommand{\arraystretch}{0.8} % уменьшение расстояний до сетки таблицы
