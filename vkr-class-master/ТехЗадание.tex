@@ -34,6 +34,14 @@
     \item обработка столкновений.
 \end{itemize}
 
+\subsection{Пример игры}
+
+Игра-платформер моделирует основные механики игр платформеров, в которых игрок управляет персонажем, который передвигается по платформам вверх, собирая монеты и стараясь забраться как можно дальше. Уровень визуализируется в двухмерном виде сбоку с использованием экранной графики персонажей и управляется клавишами. Уровень каждый раз имеет новое расположение платформ и монет.
+?Процесс прохождения уровней заключается в преодолении препятствий,зарабатыванием очков, взаимодействии с усилителями, предметами и локациями игрового мира. Пройдя уровень игрок получает доступ к следующему уровню. Игрок может взаимодействовать с игровым миром с помощью компьютерной мыши и клавиш(Space,Ctrl,Q,E). При получении усилителя игрок может использовать его при помощи клавиши Q,при получении определенного кол-ва очков игрок может получить доп.жизнь клавишей E,перемещение осуществляется автоматически кроме прыжков и подкатов(Space и Ctrl). Доступны следующие объекты взаимодействия с игроком:
+
+
+Создаётся окно Jump Game, в котором отображается  заставка игры, при нажатии клавиши Space заставка сменяется на окно игры, на нем пользователь видит текущий уровень, персонажа, а так же все объекты, находящиеся в нем. Пользователь может взаимодействовать с окном с помощью клавиш компьютера.!!!! Левым кликом мыши по окну вызывает метод mouse\_click у текущей игры. который вызывает проверку находится ли в координатах, в которых был совершён клик, какой-либо персонаж или объект, и если есть, то вызвать метод on\_click. Если персонажа в данных координатах нет, то вызвать у всех персонажей с полем category == "pc" метод search\_position(x,y), который указывает координаты движения, которые должны прийти персонажи. Так же работают все сценарии, конкретной зоны. они работают до тех пор, пока не будет вызвано условие останавливающее, конкретный сценарий.
+
 \subsection{Описание программной системы для создания игр-платформеров на примере игры}
 
 Для создания новой игры требуется создать класс игры, который наследуется от класса platformer.game.Game. Этот класс является главной частью программной системы.
@@ -68,16 +76,260 @@
 	\label{state:imgage}
 \end{figure}
 
+Для смены состояний мы используем self.set\_state(см. \ref{IntGame:imgage})("name-имя состояния") .
 
+\begin{figure}[H]
+	\begin{lstlisting}[language=Python]
+	def set_state(self, name):
+		'''
+		Переключиться в игровое состояние
+		
+		:param name: имя состояния
+		'''
+		if self.current_state is not None:
+			self.stop_script(self.current_state)
+		s = self.states[name]
+		s[0]()
+		self.start_script(s[1], name)
+		self.current_state = name
+	\end{lstlisting}
+	\caption{Пример назначения сценария на состояние}
+	\label{IntGame:imgage}
+\end{figure}
 
-\subsection{Пример игры}
+Для назначения сценариев на состояния используется модуль set\_state(см. \ref{setstate:imgage})("Название состояния") и добавляем условие при котором эта смена происходит. В примере игры из состояния "Intro" мы можем перейти в состояние "Game" нажатием клавиши Space.
 
-Игра-платформер моделирует основные механики игр платформеров, в которых игрок управляет персонажем, который передвигается по платформам вверх, собирая монеты и стараясь забраться как можно дальше. Уровень визуализируется в двухмерном виде сбоку с использованием экранной графики персонажей и управляется клавишами. Уровень каждый раз имеет новое расположение платформ и монет.
-?Процесс прохождения уровней заключается в преодолении препятствий,зарабатыванием очков, взаимодействии с усилителями, предметами и локациями игрового мира. Пройдя уровень игрок получает доступ к следующему уровню. Игрок может взаимодействовать с игровым миром с помощью компьютерной мыши и клавиш(Space,Ctrl,Q,E). При получении усилителя игрок может использовать его при помощи клавиши Q,при получении определенного кол-ва очков игрок может получить доп.жизнь клавишей E,перемещение осуществляется автоматически кроме прыжков и подкатов(Space и Ctrl). Доступны следующие объекты взаимодействия с игроком:
+\begin{figure}[H]
+	\begin{lstlisting}[language=Python]
+		def intro(self):
+		'''
+		Сценарий заставки
+		'''
+		if self.key_pressed(pygame.K_SPACE):
+		self.set_state("Game")
+		self.knight.vel = [random.randrange(-1, 1), random.randrange(-1, 1)]
+		time.sleep(1)
+	\end{lstlisting}
+	\caption{Пример смены состояния}
+	\label{setstate:imgage}
+\end{figure}
 
+Добавление объекта производится с помощью метода add\_object(см. \ref{addobj:imgage}) в котором мы указываем тип объекта(например Coin или Platform) а также добавляем параметры для этого объекта. Например:
 
-Создаётся окно Jump Game, в котором отображается  заставка игры, при нажатии клавиши Space заставка сменяется на окно игры, на нем пользователь видит текущий уровень, персонажа, а так же все объекты, находящиеся в нем. Пользователь может взаимодействовать с окном с помощью клавиш компьютера.!!!! Левым кликом мыши по окну вызывает метод mouse\_click у текущей игры. который вызывает проверку находится ли в координатах, в которых был совершён клик, какой-либо персонаж или объект, и если есть, то вызвать метод on\_click. Если персонажа в данных координатах нет, то вызвать у всех персонажей с полем category == "pc" метод search\_position(x,y), который указывает координаты движения, которые должны прийти персонажи. Так же работают все сценарии, конкретной зоны. они работают до тех пор, пока не будет вызвано условие останавливающее, конкретный сценарий.
+\begin{figure}[H]
+	\begin{lstlisting}[language=Python]
+	def make_platforms(self):
+		'''
+		Генерация начальных платформ
+		'''
+		self.add_object(Platform(0, HEIGHT - 20, self.PLATFORM, width=450, height=80))
+		for i in range(random.randint(4,5)):
+			self.new_platform(0, HEIGHT - 30)
+		
+		def new_platform(self, min_y, max_y):
+		'''
+		Создание новой платформы с монеткой
+		
+		:param min_y: минимальная координата платформы
+		:param max_y: максимальная координата платформы
+		'''
+		while True:
+			x = random.randint(0, WIDTH - 10)
+			y = random.randint(min_y, max_y)
+			width = random.randint(50, 120)
+			speed = random.randint(-1, 1)
+			p = Platform(x, y, self.PLATFORM, vx=speed, width=width)
+			p.pos[1] -= 40
+			p.height += 40
+			col = self.get_collision(p, Platform)
+			if len(col) == 0:
+				p.pos[1] += 40
+				p.height -= 40
+				self.add_object(p)
+				if speed == 0:
+					self.add_object(Coin(x + width / 2, y - 50, self.COIN))
+				break
+	\end{lstlisting}
+	\caption{Пример добавления новых объектов}
+	\label{addobj:imgage}
+\end{figure}
 
+Удаление объекта  производится с помощью метода remove\_object в котором мы указываем тип объекта(например Coin(см. \ref{removeobj:imgage}) или Platform(см. \ref{removeobj2:imgage})). Например:
+
+\begin{figure}[H]
+	\begin{lstlisting}[language=Python]
+	def player_collision(self):
+		'''
+		Логика столкновений игрока с объектами игры.
+		
+		С платформой игрок сталкивается только при движении вниз, и тогда он становится на нее, гравитация не действует.
+		Если пересечений нет, то игрок падает.
+		Если платформа движется, то игрок перемещается вместе с ней
+		Монету игрок забирает.
+		'''
+		plat_col = self.get_collision(self.player, Platform)
+		if len(plat_col) == 0:
+			self.player.on_ground = False  # падение
+		else:
+			if self.player.vel[1] > 0 and \
+				self.player.pos[1] + self.player.height < plat_col[0].pos[1] + plat_col[0].height:
+				self.player.pos[1] = plat_col[0].rect[1] - self.player.height + 1
+				self.player.on_ground = True
+				self.player.vel[1] = 0
+				self.score += 1
+			self.player.pos[0] += plat_col[0].vel[0]
+		coins_col = self.get_collision(self.player, Coin)
+		if len(coins_col) > 0:
+			self.remove_object(coins_col[0])
+			self.score += self.COIN_SCORE
+	\end{lstlisting}
+	\caption{Пример удаления объекта Coin при столкновении}
+	\label{removeobj:imgage}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{lstlisting}[language=Python]
+	def platforms_move(self):
+		'''
+		Перемещение платформ с монетами вниз, когда игрок перемещается вверх
+		'''
+		if self.player.pos[1] <= HEIGHT / 3:
+			vel = abs(self.player.vel[1])
+			self.player.pos[1] += vel
+			for o in self.get_objects([Platform, Coin]):
+				o.pos[1] += vel
+				if o.pos[1] >= HEIGHT:
+					self.remove_object(o)
+	\end{lstlisting}
+	\caption{Пример удаления объекта Platform и Coin при перемещении игрока вверх}
+	\label{removeobj2:imgage}
+\end{figure}
+
+Удаление всех объектов делается с помощью метода clear (см. \ref{removeall:imgage}). Например:
+
+\begin{figure}[H]
+	\begin{lstlisting}[language=Python]
+	def init_game(self):
+		'''
+		Начало игры
+		'''
+		self.score = 0
+		self.clear() # очистка объектов
+		self.add_object(Object(0, 0, self.BACKGROUND)) # фон
+		self.make_platforms()
+		self.player = Player(self.START_X, self.START_Y, self.PLAYER)
+		self.player.on_ground = False
+		self.add_object(self.player)
+		t = Text(WIDTH / 2, 10, "Verdana", 20, (123, 255, 0), \
+				lambda: str(self.score))
+		self.add_object(t)
+	\end{lstlisting}
+	\caption{Пример очистки всех объектов}
+	\label{removeall:imgage}
+\end{figure}
+
+Отрисовка игровых объектов и текста происходит с помощью методов update и render\_text (см. \ref{rendertxt:imgage}). Например:
+
+\begin{figure}[H]
+	\begin{lstlisting}[language=Python]
+	    def run(self):
+			'''
+			Главный цикл игры
+			'''	
+			done = False
+			while not done:
+				for event in pygame.event.get():
+					if event.type == pygame.QUIT:
+						done = True
+				self.display_surface.fill((0, 0, 0))
+				for o in self.objects:
+					o.update()
+				for o in self.objects:
+					if type(o) == Text:
+						self.render_text(o)
+					else:
+						self.display_surface.blit(o.surf, o.rect)
+				pygame.display.flip()
+				self.clock.tick(self.fps)
+			self.stop_script(self.current_state)
+			pygame.quit()
+	\end{lstlisting}
+	\caption{Пример отрисовки текста и игровых объектов}
+	\label{rendertxt:imgage}
+\end{figure}
+
+Получение состояния клавиш(нажата или нет) происходит с помощью метода key\_pressed (см. \ref{keyp:imgage}). В котором мы указываем ключ клавиши.Например:
+
+\begin{figure}[H]
+	\begin{lstlisting}[language=Python]
+		def game_script(self):
+			'''
+			Сценарий игры, выполняется каждый кадр
+			'''
+			# обработка управления игрока
+			if self.key_pressed(pygame.K_LEFT):
+				self.player.acc[0] = -settings.ACC
+			if self.key_pressed(pygame.K_RIGHT):
+				self.player.acc[0] = settings.ACC
+			if self.key_pressed(pygame.K_SPACE) and self.player.on_ground:
+				self.player.vel[1] = -settings.JUMP
+				self.player.on_ground = False
+			self.player_collision()
+			self.player_move()
+			self.platforms_move()
+			self.update_platforms()
+	\end{lstlisting}
+	\caption{Пример получения состояния клавиш Left, Right и Space}
+	\label{keyp:imgage}
+\end{figure}
+
+Получение списка объектов заданного типа происходит с помощью метода get\_objects (см. \ref{GetOb:imgage}). В котором мы указываем тип объектов(Platform,Coin).Например:
+
+\begin{figure}[H]
+	\begin{lstlisting}[language=Python]
+		def update_platforms(self):
+			'''
+			Генерация дополнительных платформ, чтобы их число было 6
+			'''
+			platforms = self.get_objects([Platform])
+			if len(platforms) < 6:
+				self.new_platform(-50, 0)
+	\end{lstlisting}
+	\caption{Пример получения списка объектов заданного типа(Platform)}
+	\label{GetOb:imgage}
+\end{figure}
+
+Обработка столкновений происходит с помощью метода get\_collision (см. \ref{GetCol:imgage}). В котором мы указываем объект(obj) с которым проверяется столкновение и список объектов (obj\_type) которые будут проверятся.Например:
+
+\begin{figure}[H]
+	\begin{lstlisting}[language=Python]
+		def new_platform(self, min_y, max_y):
+			'''
+			Создание новой платформы с монеткой
+			
+			:param min_y: минимальная координата платформы
+			:param max_y: максимальная координата платформы
+			'''
+			while True:
+				x = random.randint(0, WIDTH - 10)
+				y = random.randint(min_y, max_y)
+				width = random.randint(50, 120)
+				speed = random.randint(-1, 1)
+				p = Platform(x, y, self.PLATFORM, vx=speed, width=width)
+				p.pos[1] -= 40
+				p.height += 40
+				col = self.get_collision(p, Platform)
+				if len(col) == 0:
+					p.pos[1] += 40
+					p.height -= 40
+					self.add_object(p)
+					if speed == 0:
+						self.add_object(Coin(x + width / 2, y - 50, self.COIN))
+					break
+	\end{lstlisting}
+	\caption{Пример обработки столкновений}
+	\label{GetCol:imgage}
+\end{figure}
 
 \subsection{Требования к оформлению документации}
 
